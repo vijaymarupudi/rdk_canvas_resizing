@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>My experiment</title>
+        <script src="jspsych.js"></script>
+        <script src="jspsych-html-keyboard-response.js"></script>
+        <script src="jspsych-rdk.js"></script>
+        <script src="jspsych-resize.js"></script>
+        <script src="jspsych-fullscreen.js"></script>
+        <script src="jspsych-survey-text.js"></script>
+        <link href="jspsych.css" rel="stylesheet" type="text/css">
+    </head>
+    <body></body>
+    <body>
+
+    </body>
+    <script>
+
+var timeline = [];
+
+var fullScreenActivated = "0";
+var resizeActivated = "0";
+
+var survey_trial = {
+  type: 'survey-text',
+  questions: [
+    {prompt: "Full screen?", placeholder: "1 for Yes, default is no"},
+    {prompt: "Activate resize plugin", placeholder: "1 for Yes, default is no"},
+  ],
+  on_finish: function(data){
+  fullScreenActivated = data.response.Q0;
+  resizeActivated= data.response.Q1;
+  jsPsych.data.addProperties({fullScreen_Activated: fullScreenActivated})
+  jsPsych.data.addProperties({resize_Activated: resizeActivated})
+  }
+  // data: {written: randomGroup}
+}
+
+timeline.push(survey_trial)
+
+timeline.push({
+  type: 'fullscreen',
+  fullscreen_mode: function(){
+    if (fullScreenActivated === "1"){
+      return true
+    }
+    return false
+  }
+});
+
+
+var fullscreen_trial = {
+  type: 'fullscreen',
+  fullscreen_mode: true
+}
+
+var fullscreen_trial_exit = {
+  type: 'fullscreen',
+  fullscreen_mode: false
+}
+
+var test_RDK = {
+    type: "rdk", 
+    post_trial_gap: 0,
+    number_of_dots: 200,
+    RDK_type: 3,
+    choices: ["a", "l"],
+    correct_choice: "a",
+    coherent_direction: 180,
+    trial_duration: 4000
+};
+
+var inputs = {
+  type: 'resize',
+  item_width: 3 + 3/8,
+  item_height: 2 + 1/8,
+  prompt: "<p>Click and drag the lower right corner of the box until the box is the same size as a credit card held up to the screen.</p>",
+  pixels_per_unit: 150
+};
+
+if (resizeActivated === "1"){
+  timeline.push(inputs)
+}
+/* defining test timeline */
+var testProcedure_ellipses = {
+  timeline: [test_RDK, test_RDK, fullscreen_trial_exit, fullscreen_trial_exit], // add or remove inputs & full screen trials
+};
+
+
+timeline.push(testProcedure_ellipses);
+
+/*start experiment*/
+jsPsych.init({
+    timeline: timeline,
+    // show_progress_bar: true,
+    //show_progress_bar: false,
+    //auto_update_progress_bar: false,
+/*    exclusions: {
+      min_width: 800,
+      min_height: 600
+    } */  
+});
+
+</script>
+</html>
